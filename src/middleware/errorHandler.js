@@ -1,12 +1,15 @@
+import { isHttpError } from 'http-errors';
+
 export const errorHandler = (err, req, res, next) => {
-  const status = err.status || err.statusCode || 500;
+  if (isHttpError(err)) {
+    return res.status(err.status).json({
+      message: err.message || err.name,
+    });
+  }
 
   console.error(err);
 
-  res.status(status).json({
-    message:
-      status >= 500 && process.env.NODE_ENV === 'production'
-        ? 'Internal Server Error'
-        : err.message || 'Internal Server Error',
+  res.status(500).json({
+    message: 'Internal Server Error',
   });
 };
